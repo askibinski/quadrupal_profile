@@ -251,8 +251,8 @@ function quadrupal_profile_tasks(&$task, $url) {
  	  variable_set('node_admin_theme', '1');
     // disable all blocks for rubik
     db_query("UPDATE {blocks} SET status = 0 where theme = '%s'", 'rubik');
-		// default theme = merge startertheme
-		variable_set('theme_default', 'merge_startertheme');
+		// default theme = oeleboele
+		variable_set('theme_default', 'oeleboele');
     
     // image toolkit and api jpeg quality to 90%
 	  variable_set('image_toolkit', 'gd');
