@@ -82,6 +82,8 @@ function quadrupal_profile_modules() {
 	'imce',
 	'imce_wysiwyg',
 	'insert',
+  'jquery_ui',
+  'jquery_update',
 	'javascript_aggregator',
 	'link',
 	'nodeformcols',
