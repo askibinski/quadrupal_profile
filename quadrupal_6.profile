@@ -182,7 +182,7 @@ function quadrupal_profile_tasks(&$task, $url) {
     // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
 		
 		/* we laten deze later draaien omdat het anders niet werkt */
- 		$mods = array('htmlpurifier','toolbar');
+ 		$mods = array('htmlpurifier');
   	drupal_install_modules($mods);
 		
 	  $types = array(
@@ -203,33 +203,127 @@ function quadrupal_profile_tasks(&$task, $url) {
 	    $type = (object) _node_type_set_defaults($type);
 	    node_type_save($type);
 	  }
-	
-	  // Default page to not be promoted and have comments disabled.
-	  //variable_set('node_options_page', array('status', 'revision'));
-	  //variable_set('comment_page', COMMENT_NODE_DISABLED);
-	
-	  // Don't display date and author information for page nodes by default.
-	  //$theme_settings = variable_get('theme_settings', array());
-	  //$theme_settings['toggle_node_info_page'] = FALSE;
-	  //variable_set('theme_settings', $theme_settings);
-	
-	  // Set the preferred theme.
-    /*
-	  $themes = system_theme_data();
-	  $preferred_themes = array('mytheme1', 'mytheme2', 'garland');
-	  foreach ($preferred_themes as $theme) {
-	    if (array_key_exists($theme, $themes)) {
-	      system_initialize_theme_blocks($theme);
-	      db_query("UPDATE {system} SET status = 1 WHERE type = 'theme' and name = ('%s')", $theme);
-	      variable_set('theme_default', $theme);
-	      break;
-	    }
-	  }
-		*/
     
-	  // Default input filter allowed HTML tags.
-	  //variable_set('allowed_html_1', '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <ins> <del> <p> <br> <h2> <h3> <h4> ');
-		
+    // default niet promoted    
+    $node_options_page = array(0 => status);
+    variable_set('node_options_page',$node_options_page);
+	  // nodewords
+    variable_set('nodewords_metatags_generation_method_page', 1);
+    variable_set('nodewords_metatags_generation_source_page', 3);
+    
+    $menu_page = array
+    (
+    0 => 'primary-links',
+    1 => 'secondary-links'
+    );
+    variable_set('menu_page', $menu_page);
+    
+    // node form settings 2.x
+    $nodeformsettings_page = array(
+    'nfs_submission_body_rows' => 20,
+    'nfs_splitsummary' => 1,
+    'nfs_inputformat' => 0,
+    'nfs_revisionlog' => 2,
+    'nfs_author_information' => 0,
+    'nfs_path' => 0,
+    'nfs_menu' => 0,
+    'nfs_publishingoptions' => 0,
+    'nfs_comments' => 0,
+    'nfs_taxonomy' => 0,
+    'nfs_preview' => 1,
+    'nfs_cancel' => array(
+    'nfs_cancel_status' => 0,
+    'nfs_cancel_behaviour' => 0,
+    ),
+    'nfs_submit' => 'Opslaan',
+    'nfs_hide_node_title' => 0,
+    'nfs_title_create' => 'Nieuw : !node_type',
+    'nfs_title_edit' => 'Bewerk !node_type : !node_title',
+    );
+    variable_set('nodeformsettings_page',$nodeformsettings_page);
+    
+    // nodeform collumns
+    $nodeformscols_field_placements_page_default = array (
+      'title' => 
+      array (
+        'region' => 'main',
+        'weight' => '-5',
+        'has_required' => true,
+        'title' => 'Title',
+      ),
+      'body_field' => 
+      array (
+        'region' => 'main',
+        'weight' => '0.008',
+        'has_required' => false,
+        'title' => NULL,
+        'hidden' => 0,
+      ),
+      'menu' => 
+      array (
+        'region' => 'right',
+        'weight' => '0',
+        'has_required' => false,
+        'title' => 'Menu settings',
+        'collapsed' => 1,
+        'hidden' => 0,
+      ),
+      'revision_information' => 
+      array (
+        'region' => 'right',
+        'weight' => '3',
+        'has_required' => false,
+        'title' => 'Revision information',
+        'collapsed' => 1,
+        'hidden' => 0,
+      ),
+      'path' => 
+      array (
+        'region' => 'right',
+        'weight' => '4',
+        'has_required' => false,
+        'title' => 'URL path settings',
+        'collapsed' => 1,
+        'hidden' => 0,
+      ),
+      'options' => 
+      array (
+        'region' => 'right',
+        'weight' => '5',
+        'has_required' => false,
+        'title' => 'Publishing options',
+        'collapsed' => 0,
+        'hidden' => 0,
+      ),
+      'author' => 
+      array (
+        'region' => 'right',
+        'weight' => '1',
+        'has_required' => false,
+        'title' => 'Authoring information',
+        'collapsed' => 1,
+        'hidden' => 0,
+      ),
+      'buttons' => 
+      array (
+        'region' => 'main',
+        'weight' => '100',
+        'has_required' => false,
+        'title' => NULL,
+        'hidden' => 0,
+      ),
+      'nodewords' => 
+      array (
+        'region' => 'right',
+        'weight' => '2',
+        'has_required' => false,
+        'title' => 'Meta tags',
+        'collapsed' => 1,
+        'hidden' => 0,
+      ),
+    );
+    variable_set('nodeformscols_field_placements_page_default', $nodeformscols_field_placements_page_default);
+    
 	  // Set timezone for date_timezone.module.
 	  variable_set('date_default_timezone', -14400);
 	  variable_set('date_default_timezone_name', 'Europe/Amsterdam');
@@ -518,7 +612,13 @@ function quadrupal_profile_tasks(&$task, $url) {
 		db_query("UPDATE {better_formats_defaults} SET weight = '15' WHERE rid = 2"); // auth
 		db_query("UPDATE {better_formats_defaults} SET weight = '5' WHERE rid = 3"); // administrator
 		db_query("UPDATE {better_formats_defaults} SET weight = '10' WHERE rid = 4"); // editor
-	
+    // volgordes
+    db_query("UPDATE {better_formats_defaults} SET format = '3' WHERE rid = 1");
+    db_query("UPDATE {better_formats_defaults} SET format = '3' WHERE rid = 2");
+    db_query("UPDATE {better_formats_defaults} SET format = '1' WHERE rid = 3");
+    db_query("UPDATE {better_formats_defaults} SET format = '1' WHERE rid = 4");
+	  db_query("UPDATE {better_formats_defaults} SET format = '3' WHERE type = 'comment'");
+      
     variable_set('format', 's:1:"1";');
     
     // embedded inline video
@@ -530,11 +630,167 @@ function quadrupal_profile_tasks(&$task, $url) {
     variable_set('eminline_1', unserialize('a:6:{s:13:"provider_list";a:1:{s:9:"providers";a:1:{s:7:"youtube";s:7:"youtube";}}s:5:"video";a:3:{s:11:"video_width";s:3:"425";s:12:"video_height";s:3:"350";s:14:"video_autoplay";i:0;}s:7:"preview";a:3:{s:13:"preview_width";s:3:"425";s:14:"preview_height";s:3:"350";s:16:"preview_autoplay";i:0;}s:2:"tn";a:4:{s:15:"thumbnail_width";s:3:"120";s:16:"thumbnail_height";s:2:"90";s:22:"thumbnail_default_path";s:0:"";s:20:"thumbnail_link_title";s:0:"";}s:9:"meta_data";a:1:{s:11:"meta_fields";a:2:{s:5:"title";i:0;s:11:"description";i:0;}}s:12:"node_display";s:11:"video_video";}'));
     
     // html purifier settings
-    variable_set('htmlpurifier_clear_cache', unserialize('s:60:"Clear cache (Warning: Can result in performance degradation)";'));
-    variable_set('htmlpurifier_help_1', unserialize('i:0;'));
-    variable_set('htmlpurifier_doublecache', unserialize('i:0;'));
-    // onderstaande werkt nog niet...
-    variable_set('htmlpurifier_config_1', unserialize('a:96:{s:24:"Null_Attr.AllowedClasses";s:1:"1";s:24:"Attr.AllowedFrameTargets";s:28:"_top\r\n_blank\r\n_self\r\n_parent";s:15:"Attr.AllowedRel";s:0:"";s:15:"Attr.AllowedRev";s:0:"";s:23:"Null_Attr.ClassUseCDATA";s:1:"1";s:25:"Null_Attr.DefaultImageAlt";s:1:"1";s:24:"Attr.DefaultInvalidImage";s:0:"";s:27:"Attr.DefaultInvalidImageAlt";s:13:"Invalid image";s:19:"Attr.DefaultTextDir";s:3:"ltr";s:21:"Attr.ForbiddenClasses";s:0:"";s:16:"Attr.IDBlacklist";s:0:"";s:27:"Null_Attr.IDBlacklistRegexp";s:1:"1";s:13:"Attr.IDPrefix";s:0:"";s:18:"Attr.IDPrefixLocal";s:0:"";s:24:"AutoFormat.AutoParagraph";s:1:"1";s:17:"AutoFormat.Custom";s:0:"";s:25:"AutoFormat.DisplayLinkURI";s:1:"0";s:18:"AutoFormat.Linkify";s:1:"0";s:33:"AutoFormat.PurifierLinkify.DocURL";s:3:"#%s";s:26:"AutoFormat.PurifierLinkify";s:1:"0";s:44:"AutoFormat.RemoveEmpty.RemoveNbsp.Exceptions";s:6:"td\r\nth";s:33:"AutoFormat.RemoveEmpty.RemoveNbsp";s:1:"0";s:22:"AutoFormat.RemoveEmpty";s:1:"0";s:39:"AutoFormat.RemoveSpansWithoutAttributes";s:1:"0";s:18:"CSS.AllowImportant";s:1:"0";s:15:"CSS.AllowTricky";s:1:"0";s:21:"Null_CSS.AllowedFonts";s:1:"1";s:26:"Null_CSS.AllowedProperties";s:1:"1";s:23:"CSS.ForbiddenProperties";s:0:"";s:16:"CSS.MaxImgLength";s:6:"1200px";s:15:"CSS.Proprietary";s:1:"0";s:20:"Cache.DefinitionImpl";s:6:"Drupal";s:25:"Null_Cache.SerializerPath";s:1:"1";s:27:"Cache.SerializerPermissions";s:3:"493";s:22:"Core.AggressivelyFixLt";s:1:"1";s:18:"Core.CollectErrors";s:1:"0";s:18:"Core.ColorKeywords";s:254:"maroon:#800000\r\nred:#FF0000\r\norange:#FFA500\r\nyellow:#FFFF00\r\nolive:#808000\r\npurple:#800080\r\nfuchsia:#FF00FF\r\nwhite:#FFFFFF\r\nlime:#00FF00\r\ngreen:#008000\r\nnavy:#000080\r\nblue:#0000FF\r\naqua:#00FFFF\r\nteal:#008080\r\nblack:#000000\r\nsilver:#C0C0C0\r\ngray:#808080\r\n";s:30:"Core.ConvertDocumentToFragment";s:1:"1";s:36:"Core.DirectLexLineNumberSyncInterval";s:1:"0";s:13:"Core.Encoding";s:5:"utf-8";s:26:"Core.EscapeInvalidChildren";s:1:"0";s:22:"Core.EscapeInvalidTags";s:1:"0";s:29:"Core.EscapeNonASCIICharacters";s:1:"0";s:19:"Core.HiddenElements";s:13:"script\r\nstyle";s:13:"Core.Language";s:2:"en";s:19:"Null_Core.LexerImpl";s:1:"1";s:29:"Null_Core.MaintainLineNumbers";s:1:"1";s:22:"Core.NormalizeNewlines";s:1:"1";s:21:"Core.RemoveInvalidImg";s:1:"1";s:33:"Core.RemoveProcessingInstructions";s:1:"0";s:30:"Null_Core.RemoveScriptContents";s:1:"1";s:13:"Filter.Custom";s:0:"";s:34:"Filter.ExtractStyleBlocks.Escaping";s:1:"1";s:36:"Null_Filter.ExtractStyleBlocks.Scope";s:1:"1";s:39:"Null_Filter.ExtractStyleBlocks.TidyImpl";s:1:"1";s:25:"Filter.ExtractStyleBlocks";s:1:"0";s:25:"Null_HTML.AllowedElements";s:1:"1";s:24:"Null_HTML.AllowedModules";s:1:"1";s:23:"HTML.Attr.Name.UseCDATA";s:1:"0";s:17:"HTML.BlockWrapper";s:1:"p";s:16:"HTML.CoreModules";s:95:"Structure\r\nText\r\nHypertext\r\nList\r\nNonXMLCommonAttributes\r\nXMLCommonAttributes\r\nCommonAttributes";s:23:"Null_HTML.CustomDoctype";s:1:"1";s:12:"HTML.Doctype";s:16:"XHTML 1.0 Strict";s:24:"HTML.ForbiddenAttributes";s:0:"";s:22:"HTML.ForbiddenElements";s:0:"";s:17:"HTML.MaxImgLength";s:4:"1200";s:13:"HTML.Nofollow";s:1:"0";s:11:"HTML.Parent";s:3:"div";s:16:"HTML.Proprietary";s:1:"0";s:14:"HTML.SafeEmbed";s:1:"0";s:11:"HTML.Strict";s:1:"0";s:12:"HTML.TidyAdd";s:0:"";s:14:"HTML.TidyLevel";s:6:"medium";s:15:"HTML.TidyRemove";s:0:"";s:10:"HTML.XHTML";s:1:"1";s:28:"Output.CommentScriptContents";s:1:"1";s:19:"Output.FixInnerHTML";s:1:"1";s:19:"Null_Output.Newline";s:1:"1";s:15:"Output.SortAttr";s:1:"0";s:17:"Output.TidyFormat";s:1:"0";s:17:"Test.ForceNoIconv";s:1:"0";s:18:"URI.AllowedSchemes";s:36:"http\r\nhttps\r\nmailto\r\nftp\r\nnntp\r\nnews";s:13:"Null_URI.Base";s:1:"1";s:17:"URI.DefaultScheme";s:4:"http";s:11:"URI.Disable";s:1:"0";s:19:"URI.DisableExternal";s:1:"0";s:28:"URI.DisableExternalResources";s:1:"0";s:20:"URI.DisableResources";s:1:"0";s:13:"Null_URI.Host";s:1:"1";s:8:"URI.Host";s:0:"";s:17:"URI.HostBlacklist";s:0:"";s:16:"URI.MakeAbsolute";s:1:"0";s:14:"Null_URI.Munge";s:1:"1";s:18:"URI.MungeResources";s:1:"0";s:23:"Null_URI.MungeSecretKey";s:1:"1";s:26:"URI.OverrideAllowedSchemes";s:1:"1";}'));
+    variable_set('htmlpurifier_help_1', 0);
+    variable_set('htmlpurifier_doublecache', 0);
+
+$html_purifier_adv_settings = array(
+    'Null_Attr.AllowedClasses' => 1,
+    'Attr.AllowedFrameTargets' => '_top
+_blank
+_self
+_parent',
+    'Attr.AllowedRel' => '',
+    'Attr.AllowedRev' => '',
+    'Null_Attr.ClassUseCDATA' => 1,
+    'Null_Attr.DefaultImageAlt' => 1,
+    'Attr.DefaultInvalidImage' => '',
+    'Attr.DefaultInvalidImageAlt' => 'Invalid image',
+    'Attr.DefaultTextDir' => 'ltr',
+    'Attr.EnableID' => 1,
+    'Attr.ForbiddenClasses' => '',
+    'Attr.IDBlacklist' => '',
+    'Null_Attr.IDBlacklistRegexp' => 1,
+    'Attr.IDPrefix' => '',
+    'Attr.IDPrefixLocal' => '',
+    'AutoFormat.AutoParagraph' => 1,
+    'AutoFormat.Custom' => '',
+    'AutoFormat.DisplayLinkURI' => 0,
+    'AutoFormat.Linkify' => 0,
+    'AutoFormat.PurifierLinkify.DocURL' => '#%s',
+    'AutoFormat.PurifierLinkify' => 0,
+    'AutoFormat.RemoveEmpty.RemoveNbsp.Exceptions' => 'td
+th',
+    'AutoFormat.RemoveEmpty.RemoveNbsp' => 0,
+    'AutoFormat.RemoveEmpty' => 0,
+    'AutoFormat.RemoveSpansWithoutAttributes' => 0,
+    'CSS.AllowImportant' => 0,
+    'CSS.AllowTricky' => 0,
+    'Null_CSS.AllowedFonts' => 1,
+    'Null_CSS.AllowedProperties' => 1,
+    'CSS.ForbiddenProperties' => '',
+    'CSS.MaxImgLength' => '1200px',
+    'CSS.Proprietary' => 0,
+    'CSS.Trusted' => 1,
+    'Cache.DefinitionImpl' => 'Drupal',
+    'Null_Cache.SerializerPath' => 1,
+    'Cache.SerializerPermissions' => 493,
+    'Core.AggressivelyFixLt' => 1,
+    'Core.CollectErrors' => 0,
+    'Core.ColorKeywords' => 'maroon:#800000
+red:#FF0000
+orange:#FFA500
+yellow:#FFFF00
+olive:#808000
+purple:#800080
+fuchsia:#FF00FF
+white:#FFFFFF
+lime:#00FF00
+green:#008000
+navy:#000080
+blue:#0000FF
+aqua:#00FFFF
+teal:#008080
+black:#000000
+silver:#C0C0C0
+gray:#808080',
+    'Core.ConvertDocumentToFragment' => 1,
+    'Core.DirectLexLineNumberSyncInterval' => 0,
+    'Core.Encoding' => 'utf-8',
+    'Core.EscapeInvalidChildren' => 0,
+    'Core.EscapeInvalidTags' => 0,
+    'Core.EscapeNonASCIICharacters' => 0,
+    'Core.HiddenElements' => 'script
+style',
+    'Core.Language' => 'en',
+    'Null_Core.LexerImpl' => 1,
+    'Null_Core.MaintainLineNumbers' => 1,
+    'Core.NormalizeNewlines' => 1,
+    'Core.RemoveInvalidImg' => 1,
+    'Core.RemoveProcessingInstructions' => 0,
+    'Null_Core.RemoveScriptContents' => 1,
+    'Filter.Custom' => '',
+    'Filter.ExtractStyleBlocks.Escaping' => 1,
+    'Null_Filter.ExtractStyleBlocks.Scope' => 1,
+    'Null_Filter.ExtractStyleBlocks.TidyImpl' => 1,
+    'Filter.ExtractStyleBlocks' => 0,
+    'Filter.YouTube' => 1,
+    'HTML.Allowed' => 'a,em,strong,cite,code,ul,ol,li,dl,dt,dd,p,br,img,br,h1,h2,h3,h4,h5,h6,table,th,tr,td,img',
+    'HTML.AllowedAttributes' => 'a.target
+a.href
+*.value
+*.name
+*.src
+*.title
+*.class
+*.style
+*.alt
+*.height
+*.width
+*.id
+*.summary
+*.abbr
+*.codetype
+*.standby
+*.type
+*.action
+*.label',
+    'Null_HTML.AllowedElements' => 1,
+    'Null_HTML.AllowedModules' => 1,
+    'HTML.Attr.Name.UseCDATA' => 0,
+    'HTML.BlockWrapper' => 'p',
+    'HTML.CoreModules' => 'Structure
+Text
+Hypertext
+List
+NonXMLCommonAttributes
+XMLCommonAttributes
+CommonAttributes',
+    'Null_HTML.CustomDoctype' => 1,
+    'HTML.Doctype' => 'XHTML 1.0 Transitional',
+    'HTML.FlashAllowFullScreen' => 1,
+    'HTML.ForbiddenAttributes' => '',
+    'HTML.ForbiddenElements' => '',
+    'HTML.MaxImgLength' => 1200,
+    'HTML.Nofollow' => 0,
+    'HTML.Parent' => 'div',
+    'HTML.Proprietary' => 0,
+    'HTML.SafeEmbed' => 0,
+    'HTML.SafeObject' => 1,
+    'HTML.Strict' => 0,
+    'HTML.TidyAdd' => '',
+    'HTML.TidyLevel' => 'medium',
+    'HTML.TidyRemove' => '',
+    'HTML.Trusted' => 1,
+    'HTML.XHTML' => 1,
+    'Output.CommentScriptContents' => 1,
+    'Output.FixInnerHTML' => 1,
+    'Output.FlashCompat' => 1,
+    'Null_Output.Newline' => 1,
+    'Output.SortAttr' => 0,
+    'Output.TidyFormat' => 0,
+    'Test.ForceNoIconv' => 0,
+    'URI.AllowedSchemes' => 'http
+https
+mailto
+ftp
+nntp
+news',
+    'Null_URI.Base' => 1,
+    'URI.DefaultScheme' => 'http',
+    'URI.Disable' => 0,
+    'URI.DisableExternal' => 0,
+    'URI.DisableExternalResources' => 1,
+    'URI.DisableResources' => 0,
+    'Null_URI.Host' => 1,
+    'URI.HostBlacklist' => '',
+    'URI.MakeAbsolute' => 0,
+    'Null_URI.Munge' => 1,
+    'URI.MungeResources' => 0,
+    'Null_URI.MungeSecretKey' => 1,
+    'URI.OverrideAllowedSchemes' => 1,
+);
+    
+    variable_set('htmlpurifier_config_1', $html_purifier_adv_settings);
 
   
 	  //db_query("UPDATE {permission} SET perm = 'access content, search content' WHERE rid = 1");
@@ -547,11 +803,12 @@ function quadrupal_profile_tasks(&$task, $url) {
 	  $node->type = 'page';
 	  $node->status = 1;
 	  $node->promote = 0;
+    $node->format = 1;
 	  $node->uid = 1;
 	  $node->name = 'admin';
 	  $node->path = 'home';
 	  $node->title = 'Welcome';
-	  $node->body = st('Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.');
+	  $node->body = st('<p>Welkom bij versie '.QUADRUPAL_VERSION.' van QuaDrupal!</p><p>Om te testen of htmlpurifier goed geconfigureerd staat: <a href="http://www.merge.nl" target="_blank">deze link zou in een nieuw venster</a> moeten openen en <span style="color:#ff0000;">deze tekst zou rood moeten zijn</span>!</p>');
 	  node_save($node);
 	
 	  variable_set('site_frontpage', 'node/1');
